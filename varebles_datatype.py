@@ -23,7 +23,7 @@ if name != "Peter":
 	print("Name is not Peter")
 
 # Age and gender check for the store.
-age = int(input("How old are you? "))
+age = int(in0put("How old are you? "))
 gender = input("What is your gender? (male/female) ").lower()
 
 if gender not in ("male", "female"):
