@@ -1,0 +1,493 @@
+# ```python
+# RETAIL MANAGEMENT SYSTEM
+# Questions 1, 2, 3 and 4
+
+# ==========================================
+# QUESTION 1: PRODUCT REGISTRATION
+# ==========================================
+
+products = []
+
+
+def display_products():
+    """Display all registered products."""
+    if not products:
+        print("\nNo products registered yet.")
+        return
+
+    print("\n========== REGISTERED PRODUCTS ==========")
+
+    for product in products:
+        print("-----------------------------------------")
+        print("Product ID:", product["id"])
+        print("Name:", product["name"])
+        print("Category:", product["category"])
+        print("Unit Price: ₦{:,.2f}".format(product["price"]))
+        print("Quantity in Stock:", product["quantity"])
+
+    print("-----------------------------------------")
+
+
+def register_product():
+    """Register a new product."""
+    print("\n========== REGISTER PRODUCT ==========")
+
+    product_id = input("Enter product ID: ").strip()
+
+    # Check whether the ID already exists
+    for product in products:
+        if product["id"] == product_id:
+            print("Error: This product ID already exists.")
+            return
+
+    name = input("Enter product name: ").strip()
+    category = input("Enter product category: ").strip()
+
+    if not product_id or not name or not category:
+        print("Error: All fields are required.")
+        return
+
+    try:
+        price = float(input("Enter unit price (₦): "))
+        quantity = int(input("Enter quantity in stock: "))
+
+        if price < 0 or quantity < 0:
+            print("Price and quantity cannot be negative.")
+            return
+
+    except ValueError:
+        print("Invalid input. Enter a number for price")
+        print("and a whole number for quantity.")
+        return
+
+    product = {
+        "id": product_id,
+        "name": name,
+        "category": category,
+        "price": price,
+        "quantity": quantity
+    }
+
+    products.append(product)
+
+    print("Product registered successfully!")
+
+
+# ==========================================
+# QUESTION 2: SEARCH AND STOCK MONITORING
+# ==========================================
+
+def search_product(product_id):
+    """Search for a product using its ID."""
+    for product in products:
+        if product["id"].lower() == product_id.lower():
+            print("\n========== PRODUCT FOUND ==========")
+            print("Product ID:", product["id"])
+            print("Name:", product["name"])
+            print("Category:", product["category"])
+            print("Unit Price: ₦{:,.2f}".format(product["price"]))
+            print("Quantity:", product["quantity"])
+            return product
+
+    print("Product not found.")
+    return None
+
+
+def filter_by_category(category):
+    """Display products belonging to a category."""
+    found = False
+
+    print("\n========== CATEGORY SEARCH ==========")
+
+    for product in products:
+        if product["category"].lower() == category.lower():
+            print(
+                product["id"], "|",
+                product["name"], "|",
+                product["category"], "|",
+                "₦{:,.2f}".format(product["price"]), "|",
+                "Stock:", product["quantity"]
+            )
+            found = True
+
+    if not found:
+        print("No products found in this category.")
+
+
+def check_low_stock():
+    """Display products with fewer than five items."""
+    print("\n========== LOW-STOCK PRODUCTS ==========")
+
+    found = False
+
+    for product in products:
+        if product["quantity"] < 5:
+            print(
+                product["name"],
+                "- Stock remaining:",
+                product["quantity"]
+            )
+            found = True
+
+    if not found:
+        print("No products currently need restocking.")
+
+
+# ==========================================
+# QUESTION 3: OBJECT-ORIENTED PROGRAMMING
+# ==========================================
+
+class Product:
+    """Represent a product in the shop."""
+
+    def __init__(self, product_id, name, category, price, quantity):
+        self.product_id = product_id
+        self.name = name
+        self.category = category
+        self.price = price
+        self.__quantity = quantity
+
+    @property
+    def quantity(self):
+        """Read the current stock quantity."""
+        return self.__quantity
+
+    def display_info(self):
+        """Display product information."""
+        print("\nProduct ID:", self.product_id)
+        print("Name:", self.name)
+        print("Category:", self.category)
+        print("Unit Price: ₦{:,.2f}".format(self.price))
+        print("Quantity:", self.__quantity)
+
+    def stock_value(self):
+        """Calculate the value of the remaining stock."""
+        return self.price * self.__quantity
+
+    def is_low_stock(self):
+        """Check whether fewer than five items remain."""
+        return self.__quantity < 5
+
+    def reduce_stock(self, quantity):
+        """Reduce stock only when the quantity is valid."""
+        if quantity <= 0:
+            return False
+
+        if quantity > self.__quantity:
+            return False
+
+        self.__quantity -= quantity
+        return True
+
+
+class Shop:
+    """Manage products, sales, and shop revenue."""
+
+    def __init__(self, shop_name):
+        self.shop_name = shop_name
+        self.products = []
+        self.total_revenue = 0.0
+        self.sales_history = []
+
+    def add_product(self, product):
+        """Add a Product object to the shop."""
+        for existing in self.products:
+            if existing.product_id.lower() == product.product_id.lower():
+                print("Error: Product ID already exists.")
+                return False
+
+        self.products.append(product)
+        print("Product registered successfully!")
+        return True
+
+    def find_product(self, product_id):
+        """Find a product by its ID."""
+        for product in self.products:
+            if product.product_id.lower() == product_id.lower():
+                return product
+
+        return None
+
+    def display_all_products(self):
+        """Display all Product objects."""
+        if not self.products:
+            print("\nNo products registered.")
+            return
+
+        print("\n========== ALL PRODUCTS ==========")
+
+        for product in self.products:
+            product.display_info()
+            print("Stock Value: ₦{:,.2f}".format(product.stock_value()))
+
+    def search_product(self, product_id):
+        """Search for a product by ID."""
+        product = self.find_product(product_id)
+
+        if product:
+            product.display_info()
+            return product
+
+        print("Product not found.")
+        return None
+
+    def filter_by_category(self, category):
+        """Display products in a selected category."""
+        found = False
+
+        for product in self.products:
+            if product.category.lower() == category.lower():
+                product.display_info()
+                found = True
+
+        if not found:
+            print("No products found in this category.")
+
+    def check_low_stock(self):
+        """Display products with fewer than five items."""
+        print("\n========== LOW-STOCK PRODUCTS ==========")
+        found = False
+
+        for product in self.products:
+            if product.is_low_stock():
+                print(
+                    product.name,
+                    "- Remaining quantity:",
+                    product.quantity
+                )
+                found = True
+
+        if not found:
+            print("No products currently need restocking.")
+
+    def sell_product(self, product_id, quantity):
+        """Sell a product and record successful sales."""
+
+        product = self.find_product(product_id)
+
+        if product is None:
+            print("Sale failed: Product not found.")
+            return False
+
+        if quantity <= 0:
+            print("Sale failed: Quantity must be positive.")
+            return False
+
+        if quantity > product.quantity:
+            print("Sale failed: Insufficient stock.")
+            print("Available stock:", product.quantity)
+            return False
+
+        # Calculate the total before updating stock.
+        total_amount = product.price * quantity
+
+        # Reduce stock only after validating the sale.
+        if not product.reduce_stock(quantity):
+            print("Sale failed.")
+            return False
+
+        # Record revenue only for successful sales.
+        self.total_revenue += total_amount
+
+        sale = {
+            "product_id": product.product_id,
+            "product_name": product.name,
+            "quantity": quantity,
+            "unit_price": product.price,
+            "total_amount": total_amount
+        }
+
+        self.sales_history.append(sale)
+
+        # Print receipt.
+        print("\n========== SALES RECEIPT ==========")
+        print("Shop:", self.shop_name)
+        print("Product:", product.name)
+        print("Quantity:", quantity)
+        print("Unit Price: ₦{:,.2f}".format(product.price))
+        print("-----------------------------------")
+        print("TOTAL: ₦{:,.2f}".format(total_amount))
+        print("Sale completed successfully!")
+        print("===================================")
+
+        return True
+
+    def view_sales_history(self):
+        """Display the history of successful sales."""
+        print("\n========== SALES HISTORY ==========")
+
+        if not self.sales_history:
+            print("No completed sales yet.")
+            return
+
+        for number, sale in enumerate(self.sales_history, start=1):
+            print("\nSale Number:", number)
+            print("Product:", sale["product_name"])
+            print("Product ID:", sale["product_id"])
+            print("Quantity Sold:", sale["quantity"])
+            print(
+                "Unit Price: ₦{:,.2f}".format(sale["unit_price"])
+            )
+            print(
+                "Total Amount: ₦{:,.2f}".format(sale["total_amount"])
+            )
+
+    def generate_business_report(self):
+        """Generate a summary of shop performance."""
+
+        total_units = sum(
+            product.quantity for product in self.products
+        )
+
+        total_stock_value = sum(
+            product.stock_value() for product in self.products
+        )
+
+        low_stock_products = [
+            product for product in self.products
+            if product.is_low_stock()
+        ]
+
+        print("\n========== BUSINESS REPORT ==========")
+        print("Shop Name:", self.shop_name)
+        print("Registered Products:", len(self.products))
+        print("Completed Sales:", len(self.sales_history))
+        print("Total Units Remaining:", total_units)
+        print(
+            "Value of Remaining Stock: ₦{:,.2f}".format(
+                total_stock_value
+            )
+        )
+        print(
+            "Total Revenue: ₦{:,.2f}".format(
+                self.total_revenue
+            )
+        )
+
+        print("\nProducts That Need Restocking:")
+
+        if low_stock_products:
+            for product in low_stock_products:
+                print(
+                    product.name,
+                    "- Remaining:",
+                    product.quantity
+                )
+        else:
+            print("None")
+
+        print("=====================================")
+
+
+# ==========================================
+# QUESTION 4: MENU-DRIVEN PROGRAM
+# ==========================================
+
+def main():
+    shop = Shop("Haley Retail Store")
+
+    # Register five sample products.
+    # You can change these examples or remove this section
+    # if you want to register every product manually.
+
+    sample_products = [
+        Product("P001", "Rice", "Food", 2000, 20),
+        Product("P002", "Sugar", "Food", 1500, 10),
+        Product("P003", "Soap", "Toiletries", 800, 3),
+        Product("P004", "Milk", "Drinks", 2500, 15),
+        Product("P005", "Bread", "Food", 1200, 4)
+    ]
+
+    for product in sample_products:
+        shop.add_product(product)
+
+    while True:
+        print("\n======================================")
+        print("       RETAIL MANAGEMENT SYSTEM")
+        print("======================================")
+        print("1. Register a product")
+        print("2. Display all products")
+        print("3. Search for a product")
+        print("4. Filter products by category")
+        print("5. Sell a product")
+        print("6. Display low-stock products")
+        print("7. View sales history")
+        print("8. Generate business report")
+        print("9. Exit")
+        print("======================================")
+
+        choice = input("Enter your choice (1-9): ").strip()
+
+        if choice == "1":
+            product_id = input("Enter product ID: ").strip()
+            name = input("Enter product name: ").strip()
+            category = input("Enter category: ").strip()
+
+            if not product_id or not name or not category:
+                print("Error: All fields are required.")
+                continue
+
+            try:
+                price = float(input("Enter unit price (₦): "))
+                quantity = int(input("Enter quantity in stock: "))
+
+                if price < 0 or quantity < 0:
+                    print("Price and quantity cannot be negative.")
+                    continue
+
+                product = Product(
+                    product_id,
+                    name,
+                    category,
+                    price,
+                    quantity
+                )
+
+                shop.add_product(product)
+
+            except ValueError:
+                print("Invalid input. Enter a valid price and quantity.")
+
+        elif choice == "2":
+            shop.display_all_products()
+
+        elif choice == "3":
+            product_id = input("Enter product ID to search: ").strip()
+            shop.search_product(product_id)
+
+        elif choice == "4":
+            category = input("Enter category to search: ").strip()
+            shop.filter_by_category(category)
+
+        elif choice == "5":
+            product_id = input("Enter product ID to sell: ").strip()
+
+            try:
+                quantity = int(input("Enter quantity to sell: "))
+                shop.sell_product(product_id, quantity)
+
+            except ValueError:
+                print("Invalid quantity. Enter a whole number.")
+
+        elif choice == "6":
+            shop.check_low_stock()
+
+        elif choice == "7":
+            shop.view_sales_history()
+
+        elif choice == "8":
+            shop.generate_business_report()
+
+        elif choice == "9":
+            print("\nThank you for using the Retail Management System.")
+            print("Goodbye!")
+            break
+
+        else:
+            print("Invalid choice. Please select a number from 1 to 9.")
+
+
+# Start the program.
+if __name__ == "__main__":
+    main()
+
